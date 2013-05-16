@@ -1,0 +1,76 @@
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
+
+\documentclass[adobefonts,cs4size,fancyhdr,fntef]{ctexrep}
+\usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular}
+\graphicspath{{scu/}} %设置插图目录
+\renewcommand{\emph}[1]{\textit{#1}} %fntef选项改变了\emph命令的定义，我再改回来
+%将版面大小和位置为和Word的默认版面相同。注意，Word的默认版面的有关参数均以英寸（inch）作单位，不是以厘米（cm）作单位。毕业论文模板给出的参数都是错的。连Word都不熟，还好意思做模板。
+\usepackage[left=1.25in,right=1.25in,top=1in,bottom=1in]{geometry}
+%设置图表标题样式
+\usepackage{caption}
+\DeclareCaptionFont{hei}{\heiti\zihao{5}}
+\captionsetup{font=hei}
+%设置章节标题样式。不知道是哪个二货想出的这么难看的样式，不用Word或LaTeX默认的样式会死啊。
+\CTEXsetup[name={,},number={\arabic{chapter}},format={\zihao{-3}\centering},beforeskip={-35pt},afterskip={15pt plus 2pt minus 2pt}]{chapter}
+\CTEXsetup[format={\zihao{4}\bf\flushleft}]{section}
+\CTEXsetup[format={\zihao{-4}\kaishu\flushleft}]{subsection}
+\CTEXsetup[format={\zihao{-4}\heiti\flushleft}]{subsubsection}
+%设置页眉页脚
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\bf 四川大学本科毕业论文}
+\fancyhead[R]{\small\bf \thesistitle}
+\fancyfoot[C]{\thepage} %奇数页的页眉和偶数页的一样，而奇数页的页码和偶数页的页码却是对称摆放。在一般的文献中，页眉页脚要么都对称，要么都一样。再次证明模板的作者是一位完全不懂排版的二货。
+
+%在默认情况下，每一章第一页的页眉不显示，而模板要求显示，所以给这一页加页眉。
+\fancypagestyle{plain}
+{
+  \fancyhf{}
+  \fancyhead[L]{\small\bf 四川大学本科毕业论文}
+  \fancyhead[R]{\small\bf \thesistitle}
+  \fancyfoot[C]{\thepage}
+}
+\floatname{algorithm}{算法} %将算法标题的标志Algorithm改为“算法”
+\renewcommand{\algorithmicrequire}{\textbf{输入}} %把算法的Require改为“输入”
+\renewcommand{\algorithmicensure}{\textbf{输出}} %把算法的Ensure改为“输出”
+%自定义一组函数。在数学模式下，函数的字体为直立罗马体，变量的字体为斜体。
+\DeclareMathOperator{\search}{search}
+\DeclareMathOperator{\neighbours}{neighbours}
+\DeclareMathOperator{\make}{make}
+\DeclareMathOperator{\union}{union}
+\DeclareMathOperator{\find}{find}
+\DeclareMathOperator{\labelset}{labelset}
+%定义GBT7714-2005N标准的参考文献样式
+\usepackage[super,square,numbers,sort&compress]{natbib}
+\bibliographystyle{GBT7714-2005NLang}
+\newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}} %将参考文献数字列到右上角
+\newcommand{\thesistitle}{电流表读数识别的算法与实现} %论文标题
+
+\begin{document}
+\include{cover} %封面页
+\include{abstract} %中文摘要
+\include{english} %英文摘要
+\zihao{-4}
+\tableofcontents
+\pagenumbering{arabic}
+\include{introduction}
+\pagenumbering{arabic} 
+\include{theory}
+\include{opencv}
+\include{implement}
+%%%
+%\CTEXsetup[name={,},number={\arabic{chapter}},format={\zihao{-3}\centering}]{chapter} %正文后面的章标题居然又要改成居中排版。正文用一种样式，文后用另一种，瓜得很。
+
+\include{summary} 
+\include{research}
+\bibliography{reference}
+\include{statement}
+\include{acknowledge}
+\appendix
+\include{source}
+\include{translation}
+\end{document}
+
