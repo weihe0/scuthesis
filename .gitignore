@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.bbl
+*.blg
+*.toc
+*.xdv
+*~
+*.pdf
+*.eps
+mptext*
