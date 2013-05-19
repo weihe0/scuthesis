@@ -1,5 +1,21 @@
 
-\chapter{机器视觉库OpenCV介绍}
+\chapter{机器视觉库OpenCV}
+
+\section{概述}
+
+本文的算法实现基于OpenCV，OpenCV降低了开发图像识别程序的难度，提高了计算效率。OpenCV的全称是open source computer vision library，是一个开源的计算机视觉库，用于图像处理、机器视觉、模式识别、机器学习、计算机建模和虚拟现实等领域。OpenCV由英特尔公司发起，旨在为CPU计算密集型任务提供软件支持。OpenCV具有如下特性：
+\begin{asparaenum}[(1)]
+\item 提供大量的算法。OpenCV提供人机交互、图像分割、运动追踪、三维建模、特征识别、目标识别、图像匹配、机器学习等领域的大量算法，涵盖图像处理、机器视觉和模式识别的方方面面。
+\item 用C/C++开发。在早期的OpenCV版本中，绝大部分程序由C语言开发。最新的版本主要用C++语言开发。与用C语言开发的早期版本相比相比，用C++开发的新版本在兼容性、类型安全、类型推断、自动内存管理和并行计算优化等方面有显著优势。
+\item   为多种程序设计语言提供接口。OpenCV原生接口是是C++语言。为了与早期版本兼容，也提供了C语言接口。为了便于Python和Java程序员开发机器视觉应用，OpenCV也提供了Python和Java语言的接口。
+\item 支持多种平台。OpenCV支持Windows，Linux，Mac OS，iOS和Android平台。
+\item 效率高，实时性强。OpenCV专注于计算效率和实时性，因此OpenCV提供的算法实现具有较快的速度。同时OpenCV针对多核CPU、CUDA和OpenCL等并行计算平台进行优化，进一步加快了OpenCV的计算速度。
+\end{asparaenum}
+
+\section{基本数据结构}
+
+图像处理和识别需要进行大量的矩阵运算。OpenCV用Mat类表示矩阵。Mat类能表示任意大小、任意维度的矩阵，矩阵的元素可以为字节、整数、浮点数，而且Mat类表示的一维矩阵可以和点、向量、数字等数据结构进行相互转化。Mat类使用引用计数进行自动内存管理。创建矩阵时，Mat类
+
 
 \section{图像滤波}
 

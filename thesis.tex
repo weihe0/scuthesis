@@ -3,9 +3,9 @@
 %%% TeX-master: t
 %%% End: 
 
-\documentclass[adobefonts,cs4size,fancyhdr,fntef]{ctexrep}
+\documentclass[adobefonts,a4paper,cs4size,fancyhdr,fntef]{ctexrep}
 \usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular,subfig}
-\newcommand{\thesistitle}{电流表读数识别算法与实现} %论文标题
+\newcommand{\thesistitle}{电流表读数识别的算法与实现} %论文标题
 \graphicspath{{scu/}{mask/}{process/}} %设置插图目录
 \renewcommand{\emph}[1]{\textit{#1}} %fntef选项改变了\emph命令的定义，我再改回来
 %将版面大小和位置为和Word的默认版面相同。注意，Word的默认版面的有关参数均以英寸（inch）作单位，不是以厘米（cm）作单位。毕业论文模板给出的参数都是错的。连Word都不熟，还好意思做模板。
@@ -54,14 +54,13 @@
 % \usepackage[super,square,numbers,sort&compress]{natbib}
 % \bibliographystyle{GBT7714-2005NLang}
 \newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}} %将参考文献数字列到右上角
-
+\usepackage[CJKbookmarks,colorlinks,linkcolor=blue,bookmarks=true,pdfpagemode=UseOutlines,pdfauthor={何为},pdfsubject={数字图像模式识别},pdftitle={\thesistitle},pdfkeywords={图像处理，字符识别}]{hyperref} %hyperref包容易和其他宏包冲突，所以放在最后
 \begin{document}
 \include{cover} %封面页
 \include{abstract} %中文摘要
 \include{english} %英文摘要
 \zihao{-4}
 \tableofcontents
-\pagenumbering{arabic}
 \include{introduction}
 \include{theory}
 \include{opencv}
