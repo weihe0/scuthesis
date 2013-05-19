@@ -4,8 +4,10 @@
 *.blg
 *.toc
 *.xdv
+*.out
 *~
 *.pdf
 *.eps
 #*#
 mptext*
+
