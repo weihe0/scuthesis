@@ -3,7 +3,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
-#include "segment.hpp"
+#include "position.hpp"
 #include "unionfind.hpp"
 using namespace std;
 

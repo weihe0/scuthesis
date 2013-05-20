@@ -102,4 +102,66 @@ beginfig(8);
 endfig;
 
 
+outputtemplate := "binary.eps";
+beginfig(8);
+  drawgrid(5);
+  for i=1 upto 3:
+    for j=2 upto 3:
+      putnumber(i, j, 1);
+    endfor;
+  endfor;
+  putnumber(2, 1, 1);
+endfig;
 
+outputtemplate := "struct.eps";
+beginfig(9);
+  drawgrid(3);
+  putnumber(0, 1, 1);
+  for j=0 upto 2:
+    putnumber(1, j, 1);
+  endfor;
+  putnumber(2, 1, 1);
+endfig;
+
+outputtemplate := "dilate.eps";
+beginfig(10);
+  drawgrid(5);
+  for i=0 upto 4:
+    for j=2 upto 3:
+      putnumber(i, j, 1);
+    endfor;
+  endfor;
+  for i=1 upto 3:
+    putnumber(i, 1, 1);
+    putnumber(i, 4, 1);
+  endfor;
+  putnumber(2, 0, 1);
+endfig;
+
+outputtemplate := "erode.eps";
+beginfig(11);
+  drawgrid(5);
+  putnumber(2, 2, 1);
+endfig;
+
+outputtemplate := "open.eps";
+beginfig(12);
+  drawgrid(5);
+  putnumber(2, 2, 1);
+  putnumber(1, 2, 1);
+  putnumber(3, 2, 1);
+  putnumber(2, 1, 1);
+  putnumber(2, 3, 1);
+endfig;
+
+outputtemplate := "close.eps";
+beginfig(13);
+  drawgrid(5);
+  for i=1 upto 3:
+    putnumber(i, 2 ,1);
+    putnumber(i, 3, 1);
+  endfor;
+  putnumber(2, 1, 1);
+endfig;
+
+  

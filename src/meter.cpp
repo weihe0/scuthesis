@@ -1,7 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
-#include "segment.hpp"
+#include "position.hpp"
 
 using namespace cv;
 using namespace std;
