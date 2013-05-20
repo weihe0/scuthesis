@@ -3,6 +3,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include <cmath>
 #include "position.hpp"
 #include "unionfind.hpp"
 using namespace std;
@@ -162,43 +163,124 @@ bool filterComponents(Mat &src, Mat &dst, struct Comp &rect)
     return digLabel != 0;
 }
 
-bool findWheel(Mat &src, Mat &bin, Mat &dst)
-{
-    Mat candidate;
-    findComponents(bin, candidate);
-    MatIterator_<uchar> it;
-    for (it = candidate.begin<uchar>(); it != candidate.end<uchar>(); it++)
-    {
-	*it *= 10;
-    }
-    imwrite("candidate.png", candidate);
-    Mat connect;
-    struct Comp digitAttr;
-    filterComponents(candidate, connect, digitAttr);
-    vector<vector<Point> > contours;
-    findContours(connect, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    Mat mask(bin.size(), bin.type(), Scalar(0));
-    drawContours(mask, contours, 0, CV_RGB(255, 255, 255), CV_FILLED);
-    Mat part;
-    //src.copyTo(part, mask);
-    dst = src(Range(digitAttr.up, digitAttr.down),
-	      Range(digitAttr.left, digitAttr.right)).clone();
-}
 
-void refine(Mat &src, Mat &dst, Mat &mask)
+// bool findWheel(Mat &src, Mat &bin, Mat &dst)
+// {
+//     Mat candidate;
+//     findComponents(bin, candidate);
+//     // MatIterator_<uchar> it;
+//     // for (it = candidate.begin<uchar>(); it != candidate.end<uchar>(); it++)
+//     // {
+//     // 	*it *= 10;
+//     // }
+//     // imwrite("candidate.png", candidate);
+//     Mat connect;
+//     struct Comp digitAttr;
+//     filterComponents(candidate, connect, digitAttr);
+//     vector<vector<Point> > contours;
+//     findContours(connect, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+//     imshow("connect", connect);
+//     Mat mask(bin.size(), bin.type(), Scalar(0));
+//     drawContours(mask, contours, 0, CV_RGB(255, 255, 255), CV_FILLED);
+//     imshow("mask", mask);
+//     Mat part;
+//     //src.copyTo(part, mask);
+//     dst = src(Range(digitAttr.up, digitAttr.down),
+// 	      Range(digitAttr.left, digitAttr.right)).clone();
+//     vector<Point> poly;
+//     double epsilon = contours[0].size() * 0.05;
+//     approxPolyDP(contours[0], poly, epsilon, true);
+//     Mat polyImg(bin.size(), bin.type(), Scalar(0));
+//     for (int i = 0; i < poly.size() - 1; i++)
+//     {
+// 	line(polyImg, poly[i], poly[i + 1], Scalar(255), 1);
+//     }
+//     imshow("poly", polyImg);
+// }
+
+bool findWheel(Mat &src, Mat &dst)
 {
-    CV_Assert(src.size() == mask.size());
-    CV_Assert(src.type() == CV_8UC1);
-    CV_Assert(mask.type() == CV_8UC1);
-    dst = src.clone();
-    for (int r = 0; r < src.rows; r++)
+    Mat bin;
+    threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
+    imwrite("otsu.png", bin);
+    threshold(src, bin, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
+    imshow("bin", bin);
+    vector<vector<Point> > contours;
+    findContours(bin, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    int idx;
+    Mat rotated;
+    for (idx = 0; idx < contours.size(); idx++)
     {
-	for (int c = 0; c < src.cols; c++)
+	Rect rect = boundingRect(contours[idx]);
+	double area = contourArea(contours[idx]);
+	double ratio = static_cast<double>(rect.width) / rect.height;
+	double rho = area / (rect.width * rect.height);
+	if ((ratio > 1.5 && ratio < 3.0)
+	    && (rho > 0.5 && rho < 1.0))
 	{
-	    if (mask.at<uchar>(r, c) == 0)
-	    {
-		dst.at<uchar>(r, c) = 0;
-	    }
+	    Mat mask(bin.size(), bin.type(), Scalar(0));
+	    drawContours(mask, contours, idx, Scalar(255), CV_FILLED);
+	    Mat left;
+	    src.copyTo(left, mask);
+	    rotated = left(Range(rect.y, rect.y + rect.height),
+			  Range(rect.x, rect.x + rect.width)).clone();
+	    break;
 	}
     }
+
+    double epsilon = contours[idx].size() * 0.05;
+    approxPolyDP(contours[idx], contours[idx], epsilon, true);
+    Mat polyImg(bin.size(), bin.type(), Scalar(0));
+    drawContours(polyImg, contours, idx, Scalar(255), CV_FILLED);
+    imshow("poly", polyImg);
+    int top = 0;
+    for (int i = 1; i < contours[idx].size(); i++)
+    {
+	if (contours[idx][i].y < contours[idx][top].y)
+	{
+	    top = i;
+	}
+    }
+    int prev = (top - 1 < 0) ? contours[idx].size() - 1 : top - 1;
+    int next = (top + 1) % contours[idx].size();
+    double theta;
+    if (abs(contours[idx][top].x - contours[idx][prev].x) > 50)
+    {
+	theta = atan(static_cast<double>
+		       (contours[idx][top].y - contours[idx][prev].y)
+		       / (contours[idx][top].x - contours[idx][prev].x));
+    }
+    else
+    {
+	theta = atan(static_cast<double>
+		       (contours[idx][top].y - contours[idx][next].y)
+		       / (contours[idx][top].x - contours[idx][next].x));
+    }
+    Point center;
+    center.x = rotated.cols / 2;
+    center.y = rotated.rows / 2;
+    Mat rot = getRotationMatrix2D(center, theta * 180 / CV_PI, 1.0);
+
+    warpAffine(rotated, dst, rot, rotated.size());
+    imwrite("frame.png", rotated);
+    imwrite("rotate.png", dst);
+}
+    
+
+void HoughImg(Mat &src, Mat &dst)
+{
+    Mat edge;
+    Canny(src, edge, 65.0, 70.0);
+    imshow("canny", edge);
+    imwrite("canny.png", edge);
+    vector<Vec4i> lines;
+    Mat lineImg(src.size(), CV_8UC1, Scalar(0));
+    HoughLinesP(edge, lines, 1, CV_PI / 180, 20);
+    for (int i = 0; i < lines.size(); i++)
+    {
+	line(lineImg, Point(lines[i][0], lines[i][1]),
+	     Point(lines[i][2], lines[i][3]), Scalar(255), 1);
+    }
+    imwrite("hough.png", lineImg);
+    dst = lineImg;
 }

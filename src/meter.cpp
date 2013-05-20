@@ -162,6 +162,8 @@ double percentBlack(Mat &bin)
     return static_cast<double>(count) / (bin.rows * bin.cols);
 }
 
+
+
 void notImg(Mat &src, Mat &dst)
 {
     CV_Assert(src.type() == CV_8UC1);
@@ -204,12 +206,10 @@ void preprocess(Mat &src, Mat &dst)
     dst = gray;
 }
 
-void process(Mat &src, Mat &dst)
-{
-}
-
 void segment(Mat &src, Mat &dst)
 {
+    adathreshold(src, dst, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
+    imshow("dst", dst);
 }
 
 int main(int argc, char **argv)
@@ -226,23 +226,19 @@ int main(int argc, char **argv)
     }
     Mat gray;
     preprocess(src, gray);
+    Mat wheel;
+    findWheel(gray, wheel);
+    segment(wheel, wheel);
 
-     Mat bin;
-    // Mat gray2;
-    // cvtColor(upright, gray2, CV_RGB2GRAY);
-    // GaussianBlur(gray2, gray2, Size(3, 3), 1.0);
-    threshold(gray, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
-    imshow("gray", gray);
-    imshow("bin", bin);
-    imwrite("otsu.png", bin);
-    
-    MatND sigArr;
-    Mat sigImg;
-    otsuSig(gray, sigArr);
-    drawHist(sigArr, sigImg);
-    imshow("sigImg", sigImg);
-    imshow("sigma.png", sigImg);
+    waitKey(0);
+    // MatND sigArr;
+    // Mat sigImg;
+    // otsuSig(gray, sigArr);
+    // drawHist(sigArr, sigImg);
+    // imshow("sigImg", sigImg);
+    // imshow("sigma.png", sigImg);
     // MatND px;
+    
     // Mat pxImg;
     // projectHor(bin, px, 0);
     // drawHist(px, pxImg);
@@ -259,42 +255,6 @@ int main(int argc, char **argv)
     // MatND dxImg;
     // drawHist(dx, dxImg);
     // imshow("dx", dxImg);
-    notImg(bin, bin);
-    imshow("not bin", bin);
-    vector<vector<Point> > contours;
-    Mat conImg(bin.size(), bin.type(), Scalar::all(0));
-    vector<Point> frame;
-    findContours(bin, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    for (int i = 0; i < contours.size(); i++)
-    {
-    	drawContours(conImg, contours, i, Scalar::all(255), 2);
-    }
-    imshow("frame", conImg);
-    // imshow("histImg", histImg);
-    //imshow("gray", gray);
-    Mat wheel;
-    findWheel(gray, bin, wheel);
-    imshow("wheel", wheel);
-    imwrite("frame.png", wheel);
-//     //medianBlur(wheel, wheel, 7);
-//     //    imshow("medianBlur", wheel);
-//     Mat bin;
-//     adaptiveThreshold(wheel, bin, 255.0, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, -1.0);
-//     medianBlur(bin, bin, 3);
-//     medianBlur(bin, bin, 3);
-//     //medianBlur(bin, bin, 3);
-//     Mat elem(Size(3, 3), CV_8UC1, Scalar::all(1));
-//     elem.at<uchar>(0, 0)=elem.at<uchar>(0, 2)=0;
-//     elem.at<uchar>(2, 0)=elem.at<uchar>(2, 2)=0;
-//     morphologyEx(bin, bin, MORPH_CLOSE, elem);
-    
-//     morphologyEx(bin, bin, MORPH_CLOSE, elem);
-// //    morphologyEx(bin, bin, MORPH_CLOSE, elem);
-// //    morphologyEx(bin, bin, MORPH_CLOSE, elem);
-//     erode(bin, bin, elem);
-//     imshow("bin", bin);
-
-    waitKey(0);
 }
 
 

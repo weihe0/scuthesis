@@ -18,6 +18,9 @@ void  fixedThreshold(Mat &src, Mat &dst, uchar threshold);
 void findComponents(Mat &src, Mat &dst);
 bool filterComponents(Mat &src, Mat &dst, struct Comp &rect);
 void refine(Mat &src, Mat &dst, Mat &mask);
-bool findWheel(Mat &src, Mat &bin, Mat &dst);
+bool findWheel(Mat &src, Mat &dst);
+void calibrate(Mat &src, Mat &dst);
+void HoughImg(Mat &src, Mat &dst);
+
 #endif
 
