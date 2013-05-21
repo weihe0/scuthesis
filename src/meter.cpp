@@ -1,6 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+#include <string>
 #include "position.hpp"
 
 using namespace cv;
@@ -40,6 +41,26 @@ void drawHist(MatND &hist, Mat &histImg)
 	int intensity = static_cast<int>(binVal*hpt/maxVal);
 	line(histImg, Point(h, histSize[0]), Point(h, histSize[0] - intensity)
 	     ,Scalar::all(0));
+    }
+}
+
+void drawProject(MatND &pro, Mat &proImg)
+{
+    double minVal, maxVal;
+    minMaxLoc(pro, &minVal, &maxVal, 0, 0);
+    int width = static_cast<int>(maxVal / 0.9);
+    int length = pro.total();
+    proImg.create(Size(length, width), CV_8UC1);
+    MatIterator_<uchar> it;
+    for (it = proImg.begin<uchar>(); it != proImg.end<uchar>(); it++)
+    {
+	*it = 255;
+    }
+    for (int h = 0; h < pro.total(); h++)
+    {
+	line(proImg, Point(h, width), 
+	     Point(h, width - static_cast<int>(pro.at<float>(h))),
+	     Scalar::all(0));
     }
 }
 
@@ -206,10 +227,53 @@ void preprocess(Mat &src, Mat &dst)
     dst = gray;
 }
 
+void findPeaks(MatND &pro, vector<Vec2i> &peaks)
+{
+    int s = 0;
+    int e = 0;
+    int state = 0;
+    const int MIN_LEN = 15;
+
+    for (int i = 0; i < pro.total(); i++)
+    {
+	switch (state)
+	{
+	case 0:
+	    if (pro.at<float>(i) > FLT_EPSILON)
+	    {
+		s = e = i;
+		state = 1;
+	    }
+	    break;
+
+	case 1:
+	    if (pro.at<float>(i) < FLT_EPSILON)
+	    {
+		e = i;
+		if (e - s > MIN_LEN)
+		{
+		    peaks.push_back(Vec2i(s, e));
+		}
+		s = e = i;
+		state = 0;
+	    }
+	}
+    }
+    if (state == 1)
+    {
+	e = pro.total();
+	if (e - s > MIN_LEN)
+	{
+	    peaks.push_back(Vec2i(s, e));
+	}
+    }
+}
+
 void segment(Mat &src, Mat &dst)
 {
-    adathreshold(src, dst, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
-    imshow("dst", dst);
+    adaptiveThreshold(src, dst, 255.0, ADAPTIVE_THRESH_GAUSSIAN_C,
+		      3, THRESH_BINARY, 1.0);
+    imshow("dst", src);
 }
 
 int main(int argc, char **argv)
@@ -219,6 +283,7 @@ int main(int argc, char **argv)
 	return -1;
     }
     Mat src = imread(argv[1]);
+    imshow("src", src);
     if (src.data == NULL)
     {
 	cerr << "cannot open " << argv[1] << endl;
@@ -228,23 +293,46 @@ int main(int argc, char **argv)
     preprocess(src, gray);
     Mat wheel;
     findWheel(gray, wheel);
-    segment(wheel, wheel);
+    imshow("wheel", wheel);
 
-    waitKey(0);
+    // Mat wheelBin;
+    // segment(wheel, wheelBin);
     // MatND sigArr;
     // Mat sigImg;
     // otsuSig(gray, sigArr);
     // drawHist(sigArr, sigImg);
     // imshow("sigImg", sigImg);
     // imshow("sigma.png", sigImg);
-    // MatND px;
-    
-    // Mat pxImg;
-    // projectHor(bin, px, 0);
-    // drawHist(px, pxImg);
-    // imwrite("horpro.png", pxImg);
-    // imshow("horizontal", pxImg);
 
+    MatND px;
+    Mat pxImg;
+    projectHor(wheel, px, 1);
+    drawProject(px, pxImg);
+    imwrite("projectx.png", pxImg);
+    imshow("horizontal", pxImg);
+
+    vector<Vec2i> horPeaks;
+    findPeaks(px, horPeaks);
+    for (int i = 0; i < horPeaks.size(); i++)
+    {
+	cout << horPeaks[i][0] << '\t' << horPeaks[i][1] << endl;
+    }
+    vector<Mat> horCut;
+    const char *names[6] = {"1.png", "2.png", "3.png", "4.png", "5.png"};
+    for (int i = 0; i < horPeaks.size(); i++)
+    {
+	Mat candDigit = wheel(Range(0, wheel.rows),
+			Range(horPeaks[i][0], horPeaks[i][1])).clone();
+	horCut.push_back(candDigit);
+	MatND py;
+	vector<Vec2i> verPeaks;
+	projectVer(wheel, py, 1);
+	findPeaks(py, verPeaks);
+	Mat digit = candDigit(Range(verPeaks[0][0], verPeaks[0][1]),
+			      Range(0, candDigit.cols));
+	imwrite(names[i], digit);
+	imshow(names[i], digit);
+    }
     // MatND py;
     // Mat pyImg;
     // projectVer(bin, py, 0);
@@ -255,6 +343,7 @@ int main(int argc, char **argv)
     // MatND dxImg;
     // drawHist(dx, dxImg);
     // imshow("dx", dxImg);
+    waitKey(0);
 }
 
 

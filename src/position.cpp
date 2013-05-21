@@ -198,15 +198,8 @@ bool filterComponents(Mat &src, Mat &dst, struct Comp &rect)
 //     imshow("poly", polyImg);
 // }
 
-bool findWheel(Mat &src, Mat &dst)
+int selectContour(vector<vector<Point> > &contours)
 {
-    Mat bin;
-    threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
-    imwrite("otsu.png", bin);
-    threshold(src, bin, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
-    imshow("bin", bin);
-    vector<vector<Point> > contours;
-    findContours(bin, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
     int idx;
     Mat rotated;
     for (idx = 0; idx < contours.size(); idx++)
@@ -218,52 +211,99 @@ bool findWheel(Mat &src, Mat &dst)
 	if ((ratio > 1.5 && ratio < 3.0)
 	    && (rho > 0.5 && rho < 1.0))
 	{
-	    Mat mask(bin.size(), bin.type(), Scalar(0));
-	    drawContours(mask, contours, idx, Scalar(255), CV_FILLED);
-	    Mat left;
-	    src.copyTo(left, mask);
-	    rotated = left(Range(rect.y, rect.y + rect.height),
-			  Range(rect.x, rect.x + rect.width)).clone();
 	    break;
 	}
     }
+    return (idx >= contours.size()) ? -1 : idx;
+}
 
-    double epsilon = contours[idx].size() * 0.05;
-    approxPolyDP(contours[idx], contours[idx], epsilon, true);
-    Mat polyImg(bin.size(), bin.type(), Scalar(0));
-    drawContours(polyImg, contours, idx, Scalar(255), CV_FILLED);
-    imshow("poly", polyImg);
+double slantAngle(vector<Point> &frame)
+{
+    double epsilon = frame.size() * 0.05;
+    vector<Point> poly;
+    approxPolyDP(frame, poly, epsilon, true);
+    // Mat polyImg(bin.size(), bin.type(), Scalar(0));
+    // drawContours(polyImg, contours, idx, Scalar(255), CV_FILLED);
+    // imshow("poly", polyImg);
     int top = 0;
-    for (int i = 1; i < contours[idx].size(); i++)
+    for (int i = 1; i < poly.size(); i++)
     {
-	if (contours[idx][i].y < contours[idx][top].y)
+	if (poly[i].y < poly[top].y)
 	{
 	    top = i;
 	}
     }
-    int prev = (top - 1 < 0) ? contours[idx].size() - 1 : top - 1;
-    int next = (top + 1) % contours[idx].size();
+    int prev = (top - 1 < 0) ? poly.size() - 1 : top - 1;
+    int next = (top + 1) % poly.size();
     double theta;
-    if (abs(contours[idx][top].x - contours[idx][prev].x) > 50)
+    if (abs(poly[top].x - poly[prev].x) > 50)
     {
 	theta = atan(static_cast<double>
-		       (contours[idx][top].y - contours[idx][prev].y)
-		       / (contours[idx][top].x - contours[idx][prev].x));
+		       (poly[top].y - poly[prev].y)
+		       / (poly[top].x - poly[prev].x));
     }
     else
     {
 	theta = atan(static_cast<double>
-		       (contours[idx][top].y - contours[idx][next].y)
-		       / (contours[idx][top].x - contours[idx][next].x));
+		       (poly[top].y - poly[next].y)
+		       / (poly[top].x - poly[next].x));
     }
+    return theta * 180 / CV_PI;
+}
+
+bool findWheel(Mat &src, Mat &dst)
+{
+    Mat bin, binInv;
+    threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
+    imwrite("otsu.png", bin);
+    threshold(src, binInv, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
+    imshow("bin", binInv);
+    vector<vector<Point> > contours;
+    findContours(binInv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    int idx = selectContour(contours);
+
+    if (idx < 0)
+    {
+	return false;
+    }
+
+    Rect rect = boundingRect(contours[idx]);
+    Mat mask(bin.size(), bin.type(), Scalar(0));
+    drawContours(mask, contours, idx, Scalar(255), CV_FILLED);
+    Mat left;
+    src.copyTo(left, mask);
+    Mat rotated = src(rect).clone();
+
+    double slant = slantAngle(contours[idx]);
     Point center;
     center.x = rotated.cols / 2;
     center.y = rotated.rows / 2;
-    Mat rot = getRotationMatrix2D(center, theta * 180 / CV_PI, 1.0);
+    Mat rot = getRotationMatrix2D(center, slant, 1.0);
 
-    warpAffine(rotated, dst, rot, rotated.size());
+    warpAffine(rotated, dst, rot, rotated.size());    
     imwrite("frame.png", rotated);
     imwrite("rotate.png", dst);
+
+    Mat rotBin;
+    bin.copyTo(rotBin, mask);
+    Mat frameRotBin = rotBin(rect);
+    Mat frameBin;
+    warpAffine(frameRotBin, frameBin, rot, frameRotBin.size());
+    imshow("frameBin", frameBin);
+    imwrite("framebin.png", frameBin);
+    // Mat calib;
+    // warpAffine(src, calib, rot, src.size());
+    // Mat binInv;
+    // threshold(calib, binInv, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
+    // threshold(calib, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
+    
+    // findContours(binInv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    // idx = selectContour(contours);
+    // // rotated = bin(boundingRect(contours[idx])).clone();
+    // warpAffine(
+    // imshow("rotated", rotated);
+    dst = frameBin.clone();
+    return true;
 }
     
 

@@ -164,4 +164,16 @@ beginfig(13);
   putnumber(2, 1, 1);
 endfig;
 
-  
+outputtemplate := "hilditchmask.eps";
+beginfig(14);
+  drawgrid(3);
+  label(TEX("$p$"),(1*u+0.5u,1*u+0.5u));
+  label(TEX("$x_1$"),(2*u+0.5u,1*u+0.5u));
+  label(TEX("$x_2$"),(2*u+0.5u,2*u+0.5u));
+  label(TEX("$x_3$"),(1*u+0.5u,2*u+0.5u));
+  label(TEX("$x_4$"),(0*u+0.5u,2*u+0.5u));
+  label(TEX("$x_5$"),(0*u+0.5u,1*u+0.5u));
+  label(TEX("$x_6$"),(0*u+0.5u,0*u+0.5u));
+  label(TEX("$x_7$"),(1*u+0.5u,0*u+0.5u));
+  label(TEX("$x_8$"),(2*u+0.5u,0*u+0.5u));
+endfig;

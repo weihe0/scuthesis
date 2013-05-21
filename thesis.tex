@@ -4,7 +4,7 @@
 %%% End: 
 
 \documentclass[adobefonts,a4paper,cs4size,fancyhdr,fntef]{ctexrep}
-\usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular,subfig,xltxtra}
+\usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular,subfig,xltxtra,texnames,listings}
 \newcommand{\thesistitle}{电流表读数识别的算法与实现} %论文标题
 \graphicspath{{scu/}{mask/}{process/}} %设置插图目录
 \renewcommand{\emph}[1]{\textit{#1}} %fntef选项改变了\emph命令的定义，我再改回来
@@ -51,6 +51,7 @@
 \DeclareMathOperator{\union}{union}
 \DeclareMathOperator{\find}{find}
 \DeclareMathOperator{\labelset}{labelset}
+
 %定义GBT7714-2005N标准的参考文献样式
 % \usepackage[super,square,numbers,sort&compress]{natbib}
 % \bibliographystyle{GBT7714-2005NLang}
