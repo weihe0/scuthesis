@@ -1,0 +1,119 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb}
+\begin{document}
+
+\begin{equation}
+  \label{eq:1}
+  p_i=\frac{n_i}{N},\quad p_i\geqslant 0,\sum_{i=1}^Lp_i=1
+\end{equation}
+
+\begin{equation}
+  \label{eq:2}
+  \omega_0=\sum_{i=1}^kp_i=\omega(k)
+\end{equation}
+
+\begin{equation}
+  \label{eq:3}
+  \omega_1=\sum_{i=k+1}^Lp_i=1-\omega(k)
+\end{equation}
+
+\begin{equation}
+  \label{eq:4}
+  \mu_0=\sum_{i=1}^k\frac{ip_i}{\omega_0}=\frac{\mu(k)}{\omega(k)}
+\end{equation}
+
+\begin{equation}
+  \label{eq:5}
+  \mu_1=\sum_{i=k+1}^L\frac{ip_i}{\omega_0}=\frac{\mu_T-\mu(k)}{1-\omega(k)}
+\end{equation}
+
+\begin{equation}
+  \label{eq:6}
+  \omega(k)=\sum_{i=1}^kp_i
+\end{equation}
+
+\begin{equation}
+  \label{eq:7}
+  \mu(k)=\sum_{i=1}^kip_i
+\end{equation}
+
+\begin{equation}
+  \label{eq:8}
+  \mu_T=\mu(L)=\sum_{i=1}^Lip_i
+\end{equation}
+
+\begin{equation}
+  \label{eq:9}
+  \omega_0\mu_0+\omega_1\mu_1=\mu_T,\quad\omega_0+\omega_1=1
+\end{equation}
+
+\begin{equation}
+  \label{eq:10}
+  \sigma_0^2=\sum_{i=1}^k(i-\mu_0)^2\frac{p_i}{\omega_0}
+\end{equation}
+
+\begin{equation}
+  \label{eq:11}
+  \sigma_1^2=\sum_{i=1}^k(i-\mu_1)^2\frac{p_i}{\omega_1}
+\end{equation}
+
+\begin{equation}
+  \label{eq:12}
+  \lambda=\frac{\sigma_B^2}{\sigma_W^2}\quad
+  \kappa=\frac{\sigma_W^2}{\sigma_B^2}\quad
+  \eta=\frac{\sigma_B^2}{\sigma_T^2}
+\end{equation}
+
+\begin{equation}
+  \label{eq:13}
+  \sigma_W^2 = \omega_0\sigma_0^2+\omega_1\sigma_1^2\\
+\end{equation}
+
+\begin{equation}
+  \label{eq:14}
+  \begin{aligned}
+    \sigma_B^2 &= \omega_0(\mu_0-\mu_T)^2+\omega_1(\mu_1-\mu_T)^2
+    &= \omega_0\omega_1(\mu_1-\mu_0)^2
+  \end{aligned}
+\end{equation}
+
+\begin{equation}
+  \label{eq:15}
+  \sigma_T^2=\sum_{i=1}^L(i-\mu_T)p_i
+\end{equation}
+
+\begin{equation}
+  \label{eq:16}
+  \sigma_W^2+\sigma_B^2=\sigma_T^2
+\end{equation}
+
+\begin{equation}
+  \label{eq:17}
+  \eta(k)=\frac{\sigma_B^2(k)}{\sigma_T^2}
+\end{equation}
+
+\begin{equation}
+  \label{eq:18}
+  \sigma_B^2=\frac{[\mu_T\omega(k)-\mu(k)]^2}{\omega(k)[1-\omega(k)]}
+\end{equation}
+
+\begin{equation}
+  \label{eq:19}
+  \sigma_B(k^*)=\max_{1\leqslant k\leqslant L}\sigma_B^2(k)
+\end{equation}
+
+\begin{equation*}
+  S^*=\{k|\omega_0\omega_1=\omega(k)[1-\omega(k)]>0,\quad
+  0<\omega(k)<1
+\end{equation*}
+
+\begin{equation*}
+  0\leqslant\eta^*\leqslant 1
+\end{equation*}
+
+\begin{equation*}
+  \sigma_B^2(k_1^*,k_2*)=\max_{1\leqslant k_1<k_2<L}\sigma_B^2(k_1,k_2)
+\end{equation*}
+
+
+\end{document}

@@ -1,3 +1,394 @@
 
 \chapter{翻译（原文和译文）}
 
+\section*{译文}
+
+\begin{center}
+ \Large \textbf{灰度直方图的阈值选择方法}\\[10pt]
+\normalsize 大津信行\\[10pt]
+\end{center}
+
+\textbf{摘要}\ \textit{本文提出了一种为图像分割而进行的非参数且非监督的自动阈值选择方法。最优阈值是用判决准则选取的。这个判决准则使分离的两类的灰度级差距最大。这个过程非常简单，只利用了灰度直方图的零阶和一阶累计矩。可以直观地将这个方法推广到多阈值分割问题。实验结果证实了该方法的有效性。}
+
+\subsection*{概述}
+
+
+在图像处理中，选取一个合适的灰度阈值，从背景提取图像是非常重要的。就这个问题，人们已经提出了多种技术。在理想的情况下，在直方图中两个波峰中，有一个又深又陡的波谷。这两个波峰分别代表目标和背景。在这种情况下，直方图的波谷就可以作为阈值。然而，对大多数图像，很难精确地找出波谷。尤其是在波谷较为平坦且充满噪声，或者是在两个波峰的高度相差悬殊的情况下，几乎无法找出波谷。有人提出了一些技术用于克服这些困难。例如波谷锐化技术，它将直方图限制在具有较大导数绝对值的像素处（拉普拉斯或梯度）。还有直方图差分技术，即在直方图灰度差分最大处选择阈值。这些方法都利用了邻域像素（或边缘）以修改直方图，以便于选择阈值。另一类方法直接对灰度图使用参数方法。例如，在均方误差意义上，直方图可以用高斯分布近似描述，因而可以使用统计决策方法。然而，这样的方法需要大量单调，甚至不稳定的计算。不仅如此，在许多情况下，高斯分布不能很好地拟合现实情况。在目前发表的方法中，没有哪一个对阈值的优劣做出估计。因此，建立一个合适的衡量阈值优劣的准则，在这个基础上推导最优阈值，是一个合理的做法。
+
+本文假定，从直方图选择最优阈值时，没有使用先验知识。这种假定在标准图像处理技术中十分重要，而且也是模式识别的非监督分类问题中也是十分必要的。利用判别准则，本文提出了新的方法。该方法直接估计阈值的优劣，自动选择最优化的阈值。
+
+\subsection*{公式}
+
+设给定图像的$L$个灰度级分别用$1,2,\cdots,L$表示。灰度为$i$的像素数为$n_i$，总像素数为$N=n_1+n_2+\cdots+n_L$。为简单起见，假定灰度直方图是归一化的，可以视为一个概率分布：
+\begin{equation}
+  \label{eq:1}
+  p_i=\frac{n_i}{N},\quad p_i\geqslant 0,\sum_{i=1}^Lp_i=1
+\end{equation}
+
+现在假定我们用阈值$k$将像素分成$C_0$和$C_1$两类，分别表示背景和目标；$C_0$表示灰度在1到$k$之间的像素，$C_1$表示灰度在$k+1$到$L$之间的像素。这两类的概率分布、平均值可以分别用如下公式表示：
+\begin{equation}
+  \label{eq:2}
+  \omega_0=\sum_{i=1}^kp_i=\omega(k)
+\end{equation}
+
+\begin{equation}
+  \label{eq:3}
+  \omega_1=\sum_{i=k+1}^Lp_i=1-\omega(k)
+\end{equation}
+和
+\begin{equation}
+  \label{eq:4}
+  \mu_0=\sum_{i=1}^k\frac{ip_i}{\omega_0}=\frac{\mu(k)}{\omega(k)}
+\end{equation}
+
+\begin{equation}
+  \label{eq:5}
+  \mu_1=\sum_{i=k+1}^L\frac{ip_i}{\omega_0}=\frac{\mu_T-\mu(k)}{1-\omega(k)}
+\end{equation}
+其中
+\begin{equation}
+  \label{eq:6}
+  \omega(k)=\sum_{i=1}^kp_i
+\end{equation}
+和
+\begin{equation}
+  \label{eq:7}
+  \mu(k)=\sum_{i=1}^kip_i
+\end{equation}
+分别是直方图的零阶和一阶累计矩。又有
+\begin{equation}
+  \label{eq:8}
+  \mu_T=\mu(L)=\sum_{i=1}^Lip_i
+\end{equation}
+表示原始图像的整个灰度平均值。我们可以很容易地得出，对任意阈值$k$，都有如下关系成立：
+\begin{equation}
+  \label{eq:9}
+  \omega_0\mu_0+\omega_1\mu_1=\mu_T,\quad\omega_0+\omega_1=1
+\end{equation}
+两类的方差分别用如下公式表示：
+\begin{equation}
+  \label{eq:10}
+  \sigma_0^2=\sum_{i=1}^k(i-\mu_0)^2\frac{p_i}{\omega_0}
+\end{equation}
+
+\begin{equation}
+  \label{eq:11}
+  \sigma_1^2=\sum_{i=1}^k(i-\mu_1)^2\frac{p_i}{\omega_1}
+\end{equation}
+上述公式需要计算二阶累计矩。
+
+为了估计阈值$k$的优劣，我们需要引入如下判别准则：
+\begin{equation}
+  \label{eq:12}
+  \lambda=\frac{\sigma_B^2}{\sigma_W^2}\quad
+  \kappa=\frac{\sigma_W^2}{\sigma_B^2}\quad
+  \eta=\frac{\sigma_B^2}{\sigma_T^2}
+\end{equation}
+其中
+\begin{equation}
+  \label{eq:13}
+  \sigma_W^2 = \omega_0\sigma_0^2+\omega_1\sigma_1^2\\
+\end{equation}
+
+\begin{equation}
+  \label{eq:14}
+  \begin{aligned}
+    \sigma_B^2 &= \omega_0(\mu_0-\mu_T)^2+\omega_1(\mu_1-\mu_T)^2
+    &= \omega_0\omega_1(\mu_1-\mu_0)^2
+  \end{aligned}
+\end{equation}
+由\eqref{eq:9}可得，
+\begin{equation}
+  \label{eq:15}
+  \sigma_T^2=\sum_{i=1}^L(i-\mu_T)p_i
+\end{equation}
+上述公式分别是类内方差，类间方差和总方差。然后分割问题可以简化为找出阈值$k$，使\eqref{eq:12}的目标函数最大化。这是一个最优化问题。
+
+这种分割方法假定分割的两类的灰度有较大差别。换句话说，分割效果最佳的阈值应找出两类的最佳分类。
+
+这个判决准则分别找出使最大化$\lambda,\kappa$和$\eta$的$k$值。然而三者是等价的；例如$\kappa=\lambda+1$，$\eta=\frac{\lambda}{\lambda+1}$，因为以下基本关系对任意$k$成立：
+\begin{equation}
+  \label{eq:16}
+  \sigma_W^2+\sigma_B^2=\sigma_T^2
+\end{equation}
+注意$\sigma_W^2$和$\sigma_B^2$的值和$k$相关，而$\sigma_T^2$与$k$无关。另外注意$\sigma_W^2$基于二阶统计量（方差），而$\sigma_B^2$基于一阶统计量（均值）。因此，$\eta$是关于$k$的最简单的量化函数。故我们选择$\eta$作为衡量阈值$k$的优劣的准则。
+
+使$\eta$或$\sigma_B^2$最优的阈值$k^*$可以用如下迭代搜索。利用简单的累计矩\eqref{eq:6}和\eqref{eq:7}，或用\eqref{eq:2}--\eqref{eq:5}：
+\begin{equation}
+  \label{eq:17}
+  \eta(k)=\frac{\sigma_B^2(k)}{\sigma_T^2}
+\end{equation}
+
+\begin{equation}
+  \label{eq:18}
+  \sigma_B^2=\frac{[\mu_T\omega(k)-\mu(k)]^2}{\omega(k)[1-\omega(k)]}
+\end{equation}
+因此最优阈值$k^*$为：
+\begin{equation}
+  \label{eq:19}
+  \sigma_B(k^*)=\max_{1\leqslant k\leqslant L}\sigma_B^2(k)
+\end{equation}
+
+从问题得知，最优阈值$k$的可以简单地限制在：
+\begin{equation*}
+  S^*=\{k|\omega_0\omega_1=\omega(k)[1-\omega(k)]>0,\quad
+  0<\omega(k)<1
+\end{equation*}
+
+我们将它称为灰度阈值的有效范围。从公式\eqref{eq:14}的定义可得，在$k\in S-S^*=\{k|\omega(k)=0\textrm{或}1\}$范围内的$k$，判决函数$\sigma_B^2$（或$\eta$）取最小值零，而在$k\in S^*$范围内，取正数值。因此，最优值一定存在。
+
+\subsubsection*{重要分析}
+
+在前面叙述的方法中，除了选择最优阈值外，还需要分析其他一些重要的方面。
+
+对选择的阈值$k^*$，两类的概率分布分别为\eqref{eq:2}和\eqref{eq:3}，分别表示用阈值分割后，这两类像素代表的区域所占整幅图像的百分比。两类的均值\eqref{eq:4}和\eqref{eq:5}当作原始灰度图像的均值估计。
+
+最大值$\eta(k^*)$，或简单地记为$\eta^*$，可用于估计两类之间的差别。这是一个重要的度量方式，因为它对灰度的仿射变换不变（例如，对任意旋转和缩放变换$g_i'=ag_i+b$）。它仅仅取如下范围：
+\begin{equation*}
+  0\leqslant\eta^*\leqslant 1
+\end{equation*}
+$\eta$取下确界0，当且仅当图像有单一灰度。$\eta$取上确界1，当且仅当图像仅有两种灰度。
+
+\subsubsection*{推广到多阈值}
+
+将该方法推广到多阈值分割问题是直观的。只需推广判决准则。例如，假设将图像分成三个区域，我们需要求出两个阈值：$1\leqslant k_1<k_2<L$，将图像的所有像素分成在$[1,k_1]$区间的类$C_0$，$[k_1+1,k_2]$区间的类$C_1$和$[k_2+1,L]$区间的类$C_2$。准则函数$\sigma_B^2$（也可以取$\eta$）则可以视为两个变量$k_1$和$k_2$的函数，而最优阈值$k_1^*$和$k_2^*$使$\sigma_B^2$最大：
+\begin{equation*}
+  \sigma_B^2(k_1^*,k_2*)=\max_{1\leqslant k_1<k_2<L}\sigma_B^2(k_1,k_2)
+\end{equation*}
+
+需要指出，类别数越多，阈值越难选择。这是因为判决函数$\sigma_B$是用一维灰度直方图定义的，再多类别分割中意义不大。$\sigma_B$的表达式及其优化过程也变得越來越复杂。然而，对分割成两类和三类的问题，该判决准则是非常简单的，因为几乎所有的实际应用都只是这样的问题。因而简化搜索过程是极其必要的。值得一提的是，上述方法可以将$M$类阈值分割问题，简化为求出$M-1$个离散阈值的问题，而在参数方法中，灰度直方图是用高斯分布近似刻画的，需要$3M-1$个连续参数。
+
+\subsubsection*{实验结果}
+
+多个实验样本如图1--3所示。在这些图像中，(a)和(e)是原始灰度图像；(b)和(f)分别是相应的阈值分割结果；(c)和(g)分别是其灰度直方图（已在选择的阈值处做标记），而准则度量$\eta(k)$与此有关。(d)和(h)是分析结果。原始的灰度图像都是$64\times 64$大小。在图1中，图2和图3(a)和图3(e)中，灰度级别分别是16，64，32和256.（通过将字符叠加到图像中，它们都可以转化成相同的16灰度图像，然而这样它们都会丢失精确的灰度细节）。
+
+图1显示了对同一幅含有打字机体的字母“A”加上不同的干扰和噪声。其中图(a)加上了色带，另一幅是原始图像。图2显示了对纹理应用上述方法的结果，其中的直方图都是典型的困难情绪，如平坦的波谷(c)和单峰直方图(g)。为了合适地现实用阈值分割将图像分割成三类的问题，上述方法也应用到细胞图像中，取得了正确的结果，如图3所示，其中$C_0$表示背景，$C_1$表示细胞质，$C_2$表示细胞核。在图(b)和(f)中，它们分别用()，(=)和(*)表示。
+
+目前，从各种样本获取的大量实验结果显示上述从理论上推导的方法也具有实际意义。
+
+\subsubsection*{目标函数的单峰性}
+
+目标函数$\sigma_B^2(k)$，或等价的判别函数$\eta(k)$，总是平滑和单峰的。这一点可以从图1--2的实验结果得知。这证实了该判决准则的优势，同时说明了方法的稳定性。对单峰性质的严格证明尚未得出。然而，由于本文仅关注最大值，证明可以省略。
+
+\subsection*{结论}
+
+%英文原文使用英文标题样式
+\CTEXsetup[name={,},number={\arabic{chapter}},format={\zihao{-3}\centering},beforeskip={-35pt},afterskip={15pt plus 2pt minus 2pt}]{chapter}
+\CTEXsetup[format={\zihao{4}\bf\centering}]{section}
+\CTEXsetup[format={\zihao{-4}\bf\flushleft}]{subsection}
+\CTEXsetup[format={\zihao{-4}\bf\flushleft}]{subsubsection}
+
+\section*{原文}
+
+\begin{center}
+ \Large \textbf{A Threshold Selection Method from \\ Gray-Level Histograms}\\[10pt]
+\normalsize NOBUYUKI OTSU\\[10pt]
+\end{center}
+
+\textit{Abstract}---\textbf{A nonparametric and unsupervised method of automatic threshold selection for picture segmentation is presented. Anoptimal threshold is selected by the discriminant criterion, namely,so as to maximize the separability of the resultant classes in gray levels. The procedure is very simple, utilizing only the zeroth- and the first-order cumulative moments of the gray-level histogram. It is straightforward to extend the method to multithreshold problems.Several experimental results are also presented to support the validity of the method.}
+
+\subsection*{introduction}
+
+It is important in picture processing to select an adequate threshold of gray level for extracting objects from their background. A variety of techniques have been proposed in this regard. In an ideal case, the histogram has a deep and sharp valley between two peaks representing objects and background, respectively, so that the threshold can be chosen at the bottom of this valley [1]. However, for most real pictures, it is often difficult to detect the valley bottom precisely, especially in such cases as when the valley is flat and broad, imbued with noise, or when the two peaks are extremely unequal in height, often producing no traceable valley. There have been some techniques proposed in order to overcome these difficulties. They are, for example, the valley sharpening technique [2], which restricts the histogram to the pixels with large absolute values of derivative (Laplacian or gradient), and the difference histogram method [3], which selects the threshold at the gray level with the maximal amount of difference. These utilize information concerning neighboring pixels (or edges) in the original picture to modify the histogram so as to make it useful for thresholding. Another class of methods deals directly with the gray-level histogram by parametric techniques. For example, the histogram is approximated in the least square sense by a sum of Gaussian distributions, and statistical decision procedures are applied [4]. However, such a method requires considerably tedious and sometimes unstable calculations. Moreover, in many cases, the Gaussian distributions turn out to be a meager approximation of the real modes.
+
+In any event, no "goodness" of threshold has been evaluated in most of the methods so far proposed. This would imply that it could be the right way of deriving an optimal thresholding method to establish an appropriate criterion for evaluating the "goodness" of threshold from a more general standpoint. In this correspondence, our discussion will be confined to the elementary case of threshold selection where only the gray-level histogram suffices without other a priori knowledge. It is not only important as a standard technique in picture processing, but also essential for unsupervised decision problems in pattern recognition. A new method is proposed from the viewpoint of discriminant analysis; it directly approaches the feasibility of evaluating the "goodness" of threshold and automatically selecting an optimal threshold.
+
+\subsection*{formulation}
+
+
+Let the pixels of a given picture be represented in $L$ gray levels $[1,L]$.  The number of pixels at level $i$ is denoted by $n_i$ and the total number of pixels by $N=n_1+n_2+\cdots+n_L$. In order to simplify the discussion, the gray-level histogram is normalized and regarded as a probability distribution:
+\begin{equation}
+  \label{eq2:1}
+  p_i=\frac{n_i}{N},\quad p_i\geqslant 0,\sum_{i=1}^Lp_i=1
+\end{equation}
+
+Now suppose that we dichotomize the pixels into two classed $C_0$ and $C_1$(background and objects, or vice versa) by a threshold at level $k$; $C_0$ denotes pixels with levels $[1,k]$, and $C_1$ denotes pixels with levels $[k+1,L]$. Then the probabilities of class occurrence and the class mean levels, respectively, are given by
+\begin{equation}
+  \label{eq2:2}
+  \omega_0=\sum_{i=1}^kp_i=\omega(k)
+\end{equation}
+
+\begin{equation}
+  \label{eq2:3}
+  \omega_1=\sum_{i=k+1}^Lp_i=1-\omega(k)
+\end{equation}
+and
+\begin{equation}
+  \label{eq2:4}
+  \mu_0=\sum_{i=1}^k\frac{ip_i}{\omega_0}=\frac{\mu(k)}{\omega(k)}
+\end{equation}
+
+\begin{equation}
+  \label{eq2:5}
+  \mu_1=\sum_{i=k+1}^L\frac{ip_i}{\omega_0}=\frac{\mu_T-\mu(k)}{1-\omega(k)}
+\end{equation}
+where
+\begin{equation}
+  \label{eq2:6}
+  \omega(k)=\sum_{i=1}^kp_i
+\end{equation}
+and
+\begin{equation}
+  \label{eq2:7}
+  \mu(k)=\sum_{i=1}^kip_i
+\end{equation}
+are the zeroth and the first-order cumulative moments of the histogram up to the $k$th level, respectively, and
+\begin{equation}
+  \label{eq2:8}
+  \mu_T=\mu(L)=\sum_{i=1}^Lip_i
+\end{equation}
+is the total mean level of the original picture. We can easily verify the following relation for any choice of $k$:
+\begin{equation}
+  \label{eq2:9}
+  \omega_0\mu_0+\omega_1\mu_1=\mu_T,\quad\omega_0+\omega_1=1
+\end{equation}
+The class variances are given by
+\begin{equation}
+  \label{eq2:10}
+  \sigma_0^2=\sum_{i=1}^k(i-\mu_0)^2\frac{p_i}{\omega_0}
+\end{equation}
+
+\begin{equation}
+  \label{eq2:11}
+  \sigma_1^2=\sum_{i=1}^k(i-\mu_1)^2\frac{p_i}{\omega_1}
+\end{equation}
+These require second-order cumulative moments (statistics). In order to evaluate the "goodness" of the threshold (at level $k$), we shall introduce the following discriminant criterion measures(or measures of class separability) used in the discriminant analysis:
+\begin{equation}
+  \label{eq2:12}
+  \lambda=\frac{\sigma_B^2}{\sigma_W^2}\quad
+  \kappa=\frac{\sigma_W^2}{\sigma_B^2}\quad
+  \eta=\frac{\sigma_B^2}{\sigma_T^2}
+\end{equation}
+where
+\begin{equation}
+  \label{eq2:13}
+  \sigma_W^2 = \omega_0\sigma_0^2+\omega_1\sigma_1^2\\
+\end{equation}
+
+\begin{equation}
+  \label{eq2:14}
+  \begin{aligned}
+    \sigma_B^2 &= \omega_0(\mu_0-\mu_T)^2+\omega_1(\mu_1-\mu_T)^2
+    &= \omega_0\omega_1(\mu_1-\mu_0)^2
+  \end{aligned}
+\end{equation}
+(due to \eqref{eq2:9}) and
+\begin{equation}
+  \label{eq2:15}
+  \sigma_T^2=\sum_{i=1}^L(i-\mu_T)p_i
+\end{equation}
+are the within-class variance, the between-class variance, and thetotal variance of levels, respectively. Then our problem is reducedto an optimization problem to search for a threshold $k$ that maximizes one of the object functions (the criterion measures) in \eqref{eq2:12}.
+
+this standpoint is motivated by a conjecture that well-thresholded classes would be separated in gray levels, and conersely, a threshold giving the best separation of classes in gray levels would be the best threshold.
+
+The discriminant criteria maximizing $\lambda,\kappa$ and $\eta$, repectively, for $\kappa$ are, however, equivalent to one another; e.g., $\kappa=\eta+1$ and $\eta=\frac{\lambda}{\lambda+1)}$ in terms of $\lambda$, because the following basic relation always holds:
+\begin{equation}
+  \label{eq2:16}
+  \sigma_W^2+\sigma_B^2=\sigma_T^2
+\end{equation}
+
+It is noticed that $\sigma_W^2$ and $\sigma_B^2$ are functions of threshold level $k$, but $\sigma_T^2$ is independent of $k$. It is also noted that $\sigma_W^2$ is based on the second-order statistics (class means). Therefor, $\eta$ is the simplese measure with respect to $k$. Thus we adopt $\eta$ as the criterion measure to eveluate the ``goodness''(or separability)of the threshold at level $k$.
+
+The optimal threshold $k^*$ that maximizes $\eta$, or equivalently maximizes $\sigma_B^2$, is selected in the following sequential search by using the simple cumulative quantities \eqref{eq2:6} and \eqref{eq2:7}, or explicitly using \eqref{eq2:2}--\eqref{eq2:5}:
+\begin{equation}
+  \label{eq2:17}
+  \eta(k)=\frac{\sigma_B^2(k)}{\sigma_T^2}
+\end{equation}
+
+\begin{equation}
+  \label{eq2:18}
+  \sigma_B^2=\frac{[\mu_T\omega(k)-\mu(k)]^2}{\omega(k)[1-\omega(k)]}
+\end{equation}
+and the optimal threshold $k^*$ is 
+\begin{equation}
+  \label{eq2:19}
+  \sigma_B(k^*)=\max_{1\leqslant k\leqslant L}\sigma_B^2(k)
+\end{equation}
+
+From the problem, the range of $k$ over which the maximum is sought can be restricted to 
+\begin{equation*}
+  S^*=\{k|\omega_0\omega_1=\omega(k)[1-\omega(k)]>0,\quad
+  0<\omega(k)<1
+\end{equation*}
+We shall call it the effective range of the gray-level histogram. From the definition in \eqref{eq2:14}, the criterion measure $\sigma_B^2$(or $\eta$) taks a minimum of value of zero for such $k$ as $k\in S-S^*$. It is, therefore, obvious that the maximum always exists.
+
+\subsubsection*{Analysis of further important aspects}
+
+The method proposed in the foregoing affords further means toanalyze iportant aspects other than selecting optimal thresholds.
+
+For the selected threshold $k^*$, the class probabilities \eqref{eq2:2} and \eqref{eq2:3}, respectively, indicate the portions of the areas occupied by the classes in the picture so thresholded. The class means \eqref{eq2:4} and \eqref{eq2:5} serve as estimaates of the mean levels of the classes in the original gray-level picture. 
+
+The maximum value $\eta(k^*)$, denoted simply by $\eta^*$, can be used as a measure to evaluate the separability of classes(or ease of thresholding) for the original picture or the bimodality of the histo-
+gram. This is a significant measure, for it is invariant under affine
+transformations of the gray-level scale (i.e., for any shift and dila-
+tation, $g'_i=ag_i+b$). It is uniquely determined within the range.
+\begin{equation*}
+  0\leqslant\eta^*\leqslant 1
+\end{equation*}
+The lower bound (zero) is attainable by, and only by, pictures having a single constant gray level, and the upper bound (unity) is attainable by, and only by, two-valued pictures.
+
+\subsubsection*{Extension to Multithresholding}
+
+The extension of the method to multihresholding problems is straightforward by virtue of the discriminant criterion. For example, in the case of three-thresholding, we assume two thresholds: $1\leqslant k_1<k_2<L$, for separating three classes, $C_0$ for $[1,\cdots,k_1]$, $C_1$ for $[k_1+1,\cdots,k_2]$, and $C_2$ for $[k_2+1,\cdots,L]$. The criterion measure $\sigma_B^2$(also $\eta$) is then a function of two variables $k_1$ and $k_2$, and an optimal set of thresholds $k_1^*$ and $k_2^*$ is selected by maximizing $\sigma_B^2$:
+\begin{equation*}
+  \sigma_B^2(k_1^*,k_2*)=\max_{1\leqslant k_1<k_2<L}\sigma_B^2(k_1,k_2)
+\end{equation*}
+
+It should be noticed that the selected thresholds generally become less credible as the number of classes to be separated increases. This is because the criterion measure ($\sigma_B^2$), defined in one-dimensional(gray-level) scale, may gradually lose its meaning as the number of classes increases. The expression of $\sigma_B^2$ and the maximization procedure also become more and more complicated. However, they are very simple for $M=2$ and 3, which cover almost all practical applications, so that a special method to reduce the search processes is hardly needed. It should be remarked that the parameters required in the present method for $M$-thresholding are $M-1$ discrete thresholds themselves, while the parametric method, where the gray-level histogram is approximated by the sum of Gaussian distributions, requires $3M-1$ continuous parameters.
+
+\subsubsection*{Experimental Results}
+
+Several examples of experimental results are shown in Figs. 1-3. Throughout these figures, (a) (as also (e)) is an original gray-level picture; (b) (and (f)) is the result of thresholding; (c) (and (g)) is a set of the gray-level histogram (marked at the selected threshold) and the criterion measure q1(k) related thereto; and (d) (and (h)) is the result obtained by the analysis. The original gray-level pictures are all 64 x 64 in size, and the numbers of gray levels are 16 in Fig. 1, 64 in Fig. 2, 32 in Fig. 3(a), and 256 in Fig. 3(e). (They all had equal outputs in 16 gray levels by superposition of symbols by reason of representation, so that they may be slightly lacking in precise detail in the gray levels.) Fig. 1 shows the results of the application to an identical character "A" typewritten in different ways, one with a new ribbon (a) and another with an old one (e), respectively. In Fig. 2, the results are shown for textures, where the histograms typically show the difficult cases of a broad and flat valley (c) and a unimodal peak (g). In order to appropriately illustrate the case of three-thresholding, the method has also been applied to cell images with successful results, shown in Fig. 3, where CO stands for the background, C1 for the cytoplasm, and C2 for the nucleus. They are indicated in (b) and (f) by ( ), (=), and (*), respectively.
+
+A number of experimental results so far obtained for various
+examples indicate that the present method derived theoretically is
+of satisfactory practical use.
+
+\subsubsection*{Unimodality of the object function}
+
+The object function $\sigma_B^2$, or equivalently, the criterion measure $\eta(k)$, is always smooth and unimodal, as can be seen in the experimental results in Figs. 1-2. It may attest to an advantage of the suggested criterion and may also imply the stability of the method. The rigorous proof of the unimodality has not yet been obtained. However, it can be dispensed with from our standpoint concerning only the maximum.
+
+A method to select a threshold automatically from a gray level histogram has been derived from the viewpoint of discriminant analysis. This directly deals with the problem of evaluating the goodness of thresholds. An optimal threshold (or set of thresholds) is selected by the discriminant criterion; namely, by maximizing the discriminant measure $\eta$（or the measure of separability of the resultant classes in gray levels).
+
+The proposed method is characterized by its nonparametric and unsupervised nature of threshold selection and has the following desirable advantages.
+
+\begin{asparaenum}[1)]
+\item The procedure is very simple; only the zeroth and the first order cumulative moments of the gray-level histogram are utilized.
+
+\item A straightforward extension to multithresholding problems is feasible by virtue of the criterion on which the method is based.
+
+\item An optimal threshold (or set of thresholds) is selected automatically and stably, not based on the differentiation (i.e.. a local property such as valley), but on the integration (i.e., a global property) of the histogram.
+
+\item Further important aspects can also be analyzed (e.g., estimation of class mean levels, evaluation of class separability, etc.).
+
+\item The method is quite general: it covers a wide scope of unsupervised decision procedure.
+
+\end{asparaenum}
+
+The range of its applications is not restricted only to the thresholding of the gray-level picture, such as specifically described in the foregoing, but it may also cover other cases of unsupervised classification in which a histogram of some characteristic (or feature) discriminative for classifying the objects is available.
+
+Taking into account these points, the method suggested in this correspondence may be recommended as the most simple anid standard one for automatic threshold selection that can be applied to various practical problenms.
+
+\subsection*{Acknowledgement}
+
+The author wishes to thank Dr. H. Nishino, Head of the Information Science Division, for his hospitality and encouragement. Thanks are also due to Dr. S. Mori, Chief of the Picture Processing Section, for the data of characters and textures and valuable discussions, and to Dr. Y. Nogucli for cell data. The author is also very grateful to Professor S. Amari of the University of Tokyo for his cordial and helpful suggestions for revising the presentation of the manuscript.
+
+\subsection*{References}
+\newcounter{reference}
+\newcommand{\refitem}{\stepcounter{reference}\noindent[\thereference]\quad}
+
+\refitem J. M. S. Prewitt and M. L. Mendelsolhn, "The analysis of cell images," nn.Acad. Sci., vol. 128, pp. 1035-1053, 1966
+
+\refitem J. S. Weszka, R. N. Nagel, and A. Rosenfeld, "A threshold selection technique." IEEE Trans. Comput., vol. C-23, pp. 1322 -1326, 1974
+
+\refitem Watanabe and CYBEST Group. "An automated apparatus for cancer prescreening: CYBEST," Comp. Graph. Imiage Process. vol. 3. pp. 350--358, 1974.
+
+\refitem C. K. Chow and T. Kaneko, "Automatic boundary detection of the left ventricle from cineangiograms," Comput. Biomed. Res., vol. 5, pp. 388- 410, 1972.
+
+\refitem K, Fukunage, Introduction to Statisticul Pattern Recogniition. New York: Academic, 1972, pp. 260-267.
+
+
+%%% Local Variables:  
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End: 
