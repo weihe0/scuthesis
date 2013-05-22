@@ -257,7 +257,7 @@ bool findWheel(Mat &src, Mat &dst)
     threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
     imwrite("otsu.png", bin);
     threshold(src, binInv, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
-    imshow("bin", binInv);
+    //imshow("bin", binInv);
     vector<vector<Point> > contours;
     findContours(binInv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
     int idx = selectContour(contours);

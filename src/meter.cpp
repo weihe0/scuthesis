@@ -216,8 +216,8 @@ void preprocess(Mat &src, Mat &dst)
     Mat histImg;
     getHist(gray, hist);
     drawHist(hist, histImg);
-    imwrite("histsrc.png", histImg);
-    imshow("hist", histImg);
+    //imwrite("histsrc.png", histImg);
+    //imshow("hist", histImg);
     // equalizeHist(gray, gray);
 
     // getHist(gray, hist);
@@ -227,12 +227,11 @@ void preprocess(Mat &src, Mat &dst)
     dst = gray;
 }
 
-void findPeaks(MatND &pro, vector<Vec2i> &peaks)
+void findPeaks(MatND &pro, vector<Vec2i> &peaks, int minLen = 10)
 {
     int s = 0;
     int e = 0;
     int state = 0;
-    const int MIN_LEN = 15;
 
     for (int i = 0; i < pro.total(); i++)
     {
@@ -250,7 +249,7 @@ void findPeaks(MatND &pro, vector<Vec2i> &peaks)
 	    if (pro.at<float>(i) < FLT_EPSILON)
 	    {
 		e = i;
-		if (e - s > MIN_LEN)
+		if (e - s > minLen)
 		{
 		    peaks.push_back(Vec2i(s, e));
 		}
@@ -262,7 +261,7 @@ void findPeaks(MatND &pro, vector<Vec2i> &peaks)
     if (state == 1)
     {
 	e = pro.total();
-	if (e - s > MIN_LEN)
+	if (e - s > minLen )
 	{
 	    peaks.push_back(Vec2i(s, e));
 	}
@@ -295,15 +294,6 @@ int main(int argc, char **argv)
     findWheel(gray, wheel);
     imshow("wheel", wheel);
 
-    // Mat wheelBin;
-    // segment(wheel, wheelBin);
-    // MatND sigArr;
-    // Mat sigImg;
-    // otsuSig(gray, sigArr);
-    // drawHist(sigArr, sigImg);
-    // imshow("sigImg", sigImg);
-    // imshow("sigma.png", sigImg);
-
     MatND px;
     Mat pxImg;
     projectHor(wheel, px, 1);
@@ -312,11 +302,7 @@ int main(int argc, char **argv)
     imshow("horizontal", pxImg);
 
     vector<Vec2i> horPeaks;
-    findPeaks(px, horPeaks);
-    for (int i = 0; i < horPeaks.size(); i++)
-    {
-	cout << horPeaks[i][0] << '\t' << horPeaks[i][1] << endl;
-    }
+    findPeaks(px, horPeaks, 10);
     vector<Mat> horCut;
     const char *names[6] = {"1.png", "2.png", "3.png", "4.png", "5.png"};
     for (int i = 0; i < horPeaks.size(); i++)
@@ -327,22 +313,12 @@ int main(int argc, char **argv)
 	MatND py;
 	vector<Vec2i> verPeaks;
 	projectVer(wheel, py, 1);
-	findPeaks(py, verPeaks);
+	findPeaks(py, verPeaks, 20);
 	Mat digit = candDigit(Range(verPeaks[0][0], verPeaks[0][1]),
 			      Range(0, candDigit.cols));
-	imwrite(names[i], digit);
+	//imwrite(names[i], digit);
 	imshow(names[i], digit);
     }
-    // MatND py;
-    // Mat pyImg;
-    // projectVer(bin, py, 0);
-    // drawHist(py, pyImg);
-    // imwrite("verpro.png", pyImg);
-    // MatND dx;
-    // diffOper(px, dx);
-    // MatND dxImg;
-    // drawHist(dx, dxImg);
-    // imshow("dx", dxImg);
     waitKey(0);
 }
 
