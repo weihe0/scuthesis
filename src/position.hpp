@@ -1,5 +1,5 @@
-#ifndef SEGMENT_H
-#define SEGMENT_H
+#ifndef POSITION_H
+#define POSITION_H
 #include <opencv2/core/core.hpp>
 using namespace cv;
 struct Comp

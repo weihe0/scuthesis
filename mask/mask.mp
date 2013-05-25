@@ -177,3 +177,13 @@ beginfig(14);
   label(TEX("$x_7$"),(1*u+0.5u,0*u+0.5u));
   label(TEX("$x_8$"),(2*u+0.5u,0*u+0.5u));
 endfig;
+
+outputtemplate := "cross.eps";
+beginfig(15);
+  drawgrid(3);
+  for j=0 upto 2:
+    putnumber(1, j, 1);
+  endfor;
+  putnumber(0, 1, 1);
+  putnumber(2, 1, 1);
+endfig;

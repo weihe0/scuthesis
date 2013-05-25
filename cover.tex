@@ -2,23 +2,23 @@
 
 \newcommand{\titleterm}[2]{\makebox[4em][s]{#1}\CJKunderline{\makebox[14em]{\kaishu #2}}}
 \begin{center}
-\vspace*{10pt}
-\includegraphics[scale=0.5]{name.eps}\\[10pt]
-\songti\zihao{1} 本科生毕业论文(设计)\\[10pt]
-\includegraphics[scale=0.3]{brand.eps}\\[10pt]
-\songti\zihao{4}
-\baselineskip=1.5\baselineskip
+\includegraphics[width=7.28cm,height=1.64cm]{name.png}\\[42.2pt]
+\songti\zihao{1} 本科生毕业论文(设计)\\[10.5pt]
+\includegraphics[width=3.81cm,height=3.57cm]{brand.png}\\[15.1pt]
+\zihao{4}
+\newlength{\oldbaselineskip}
+\oldbaselineskip=\baselineskip
+\baselineskip=2.25\baselineskip
 \titleterm{题目}{\thesistitle}\\
 \titleterm{学院}{计算机学院}\\
 \titleterm{专业}{计算机科学与技术}\\
 \titleterm{学生姓名}{何为}\\
 \makebox[4em][s]{学号}\CJKunderline{\makebox[7em]{0943041105}}年级\CJKunderline{\makebox[5em]{\kaishu 2009级}}\\
-\titleterm{指导教师}{张蕾}\\[1ex]
-
-
-教务处制表\\
+\titleterm{指导教师}{张蕾}\\[26.6pt]
+\baselineskip=\oldbaselineskip
+\zihao{3}教务处制表\\
 \CTEXoptions[today=big]
-\today
+\zihao{-3}\today
 \end{center}
 \end{titlepage}
 

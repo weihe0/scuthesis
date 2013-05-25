@@ -1,7 +1,8 @@
 
 \chapter{源代码（模块代码主体部分）}
 %定义源代码的排版样式
-\lstset{tabsize=4,
+\lstset{
+  tabsize=4,
   frame=none,
   stringstyle=\ttfamily,
   numbers=left,
@@ -10,13 +11,101 @@
   numbersep=-1em
 }
 
-%main.cpp
+meter.cpp节选
 \lstinputlisting{src/meter.cpp}
-%position.cpp
-\lstinputlisting{src/position.cpp}
-%unionfind.cpp
-\lstinputlisting{src/unionfind.cpp}
+position.cpp节选
+\begin{lstlisting}
+bool findWheel(Mat &src, Mat &dst)
+{
+    Mat bin, binInv;
+    threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
+    imwrite("otsu.png", bin);
+    threshold(src, binInv, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
+    vector<vector<Point> > contours;
+    findContours(binInv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    int idx = selectContour(contours);
 
+    if (idx < 0)
+    {
+	return false;
+    }
+
+    Rect rect = boundingRect(contours[idx]);
+    Mat mask(bin.size(), bin.type(), Scalar(0));
+    drawContours(mask, contours, idx, Scalar(255), CV_FILLED);
+    Mat left;
+    src.copyTo(left, mask);
+    Mat rotated = src(rect).clone();
+
+    double slant = slantAngle(contours[idx]);
+    Point center;
+    center.x = rotated.cols / 2;
+    center.y = rotated.rows / 2;
+    Mat rot = getRotationMatrix2D(center, slant, 1.0);
+
+    warpAffine(rotated, dst, rot, rotated.size());    
+    imwrite("frame.png", rotated);
+    imwrite("rotate.png", dst);
+
+    return true;
+}
+\end{lstlisting}
+segment.cpp节选
+\begin{lstlisting}
+void segment(Mat &src, vector<Mat> &digitVec)
+{
+    Mat bin;
+    adaptiveThreshold(src, bin, 255.0, ADAPTIVE_THRESH_GAUSSIAN_C,
+		      THRESH_BINARY, 5, -1.5);
+    medianBlur(bin, bin, 3);
+    morphologyEx(bin, bin, MORPH_CLOSE, Mat());
+    imshow("bin", bin);
+
+    MatND px;
+    Mat pxImg;
+    projectHor(bin, px, 1);
+    drawProject(px, pxImg);
+    imwrite("projectx.png", pxImg);
+    // imshow("horizontal", pxImg);
+
+    trimPro(px, px);
+    histerThresh(px, px, 15, 3);
+    drawProject(px, pxImg);
+    //imshow("thresh_project", pxImg);
+
+    vector<Vec2i> horPeaks;
+    findPeaks(px, horPeaks, 5, 35, 2);
+
+    const char *names[10] = {"1.png", "2.png", "3.png", "4.png", "5.png",
+     			    "6.png", "7.png", "8.png", "9.png", "10.png"};
+     for (int i = 0; i < horPeaks.size(); i++)
+     {
+       if (horPeaks[i][0] < 10 || horPeaks[i][1] < 15)
+       {
+	   continue;
+       }
+      	Mat candDigit = bin(Range(0, bin.rows),
+      			Range(horPeaks[i][0], horPeaks[i][1])).clone();
+	cout << horPeaks[i][0] << "\t" << horPeaks[i][1] << endl;
+ 	MatND py;
+     	vector<Vec2i> verPeaks;
+     	projectVer(candDigit, py, 1);
+     	findPeaks(py, verPeaks, 15, 50, 1);
+
+	if (verPeaks.size() > 0)
+	{
+	    Mat digit = candDigit(Range(verPeaks[0][0], verPeaks[0][1]),
+				  Range(0, candDigit.cols));
+	    Rect rect(horPeaks[i][0], verPeaks[0][0], 
+		      horPeaks[i][1] - horPeaks[i][0],
+		      verPeaks[0][1] - verPeaks[0][0]);
+	    rectangle(bin, rect.tl(), rect.br(), Scalar(128), 2);
+	    digitVec.push_back(digit);
+	}
+     }
+     imshow("bin", bin);
+}
+\end{lstlisting}
 
 %%% Local Variables: 
 %%% mode: latex
