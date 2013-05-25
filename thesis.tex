@@ -3,8 +3,8 @@
 %%% TeX-master: t
 %%% End: 
 
-\documentclass[adobefonts,a4paper,cs4size,fancyhdr,fntef]{ctexrep}
-\usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular,subfig,xltxtra,texnames,listings}
+\documentclass[a4paper,adobefonts,cs4size,fancyhdr,fntef]{ctexrep}
+\usepackage{amsmath,amssymb,algorithm,algorithmic,booktabs,graphicx,paralist,supertabular,subfig,metalogo,mflogo,texnames,listings}
 \newcommand{\thesistitle}{电流表读数自动识别} %论文标题
 \graphicspath{{scu/}{mask/}{process/}} %设置插图目录
 \renewcommand{\emph}[1]{\textit{#1}} %fntef选项改变了\emph命令的定义，我再改回来
@@ -22,9 +22,9 @@
 
 %设置章节标题样式。不知道是哪个二货想出的这么难看的样式，不用Word或LaTeX默认的样式会死啊。
 \CTEXsetup[name={,},number={\arabic{chapter}},format={\zihao{-3}\centering},beforeskip={-35pt},afterskip={15pt plus 2pt minus 2pt}]{chapter}
-\CTEXsetup[format={\zihao{4}\bf\flushleft}]{section}
-\CTEXsetup[format={\zihao{-4}\heiti\flushleft}]{subsection}
-\CTEXsetup[format={\zihao{-4}\heiti\flushleft}]{subsubsection}
+\CTEXsetup[format={\zihao{4}\bf\flushleft},beforeskip=12pt,afterskip=12pt]{section}
+\CTEXsetup[format={\zihao{-4}\heiti\flushleft},beforeskip=10pt,afterskip=10pt]{subsection}
+\CTEXsetup[format={\zihao{-4}\heiti\flushleft},beforeskip=10pt,afterskip=10pt]{subsubsection}
 \CTEXsetup[number={\arabic{chapter}}]{appendix} %附录用数字编号
 %设置页眉页脚
 \pagestyle{fancy}

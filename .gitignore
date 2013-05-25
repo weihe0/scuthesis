@@ -1,3 +1,5 @@
+*.nav
+*.snm
 *.aux
 *.log
 *.bbl

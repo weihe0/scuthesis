@@ -61,18 +61,20 @@ void preprocess(Mat &src, Mat &dst)
     GaussianBlur(gray, gray, Size(3, 3), 1.0);
     imwrite("gaussian.png", gray);
  
-    // MatND hist;
-    // Mat histImg;
-    // getHist(gray, hist);
-    // drawHist(hist, histImg);
-    // imwrite("histsrc.png", histImg);
-    // imshow("hist", histImg);
-    // equalizeHist(gray, gray);
-    // imwrite("equal.png", gray);
-    // getHist(gray, hist);
-    // drawHist(hist, histImg);
-    // imwrite("histequal.png", histImg);
-    // imshow("histequal", histImg);
+    Mat gray2 = gray.clone();
+    MatND hist;
+    Mat histImg;
+    getHist(gray2, hist);
+    drawHist(hist, histImg);
+    imwrite("histsrc.png", histImg);
+    //    imshow("hist", histImg);
+    equalizeHist(gray2, gray2);
+    imwrite("equal.png", gray2);
+    getHist(gray2, hist);
+    drawHist(hist, histImg);
+    imwrite("histequal.png", histImg);
+    //    imshow("histequal", histImg);
+
     dst = gray;
 }
 
@@ -102,11 +104,11 @@ int main(int argc, char **argv)
 
     //Recogniser rec;
 
-    const char *names[5] = {"0.png", "1.png", "2.png", "3.png", "4.png"};
+    const char *names[5] = {"1.png", "2.png", "3.png", "4.png", "5.png"};
     for (int i = 0; i < digitVec.size(); i++)
     {
       //imshow(names[i], digitVec[i]);
-      imwrite(names[i], digitVec[i]);
+	imwrite(names[i], digitVec[i]);
 	//rec.refine(digitVec[i], digitVec[i]);
 	//imshow(names[i], digitVec[i]);
     }

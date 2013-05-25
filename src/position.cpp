@@ -206,7 +206,20 @@ bool findWheel(Mat &src, Mat &dst)
     Mat bin, binInv;
     threshold(src, bin, 60.0, 255.0, THRESH_BINARY | THRESH_OTSU);
     imwrite("otsu.png", bin);
+    imshow("otsu", bin);
     threshold(src, binInv, 60.0, 255.0, THRESH_BINARY_INV | THRESH_OTSU);
+
+    Mat comp;
+    findComponents(binInv, comp);
+    for (int i = 0; i < comp.rows; i++)
+    {
+	for (int j = 0; j < comp.cols; j++)
+	{
+	    comp.at<uchar>(i, j) *= 10;
+	}
+    }
+    imwrite("candidate.png", comp);
+
     vector<vector<Point> > contours;
     findContours(binInv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
     int idx = selectContour(contours);
@@ -223,6 +236,8 @@ bool findWheel(Mat &src, Mat &dst)
     src.copyTo(left, mask);
     Mat rotated = src(rect).clone();
 
+    HoughImg(rotated);
+
     double slant = slantAngle(contours[idx]);
     Point center;
     center.x = rotated.cols / 2;
@@ -237,11 +252,10 @@ bool findWheel(Mat &src, Mat &dst)
 }
     
 
-void HoughImg(Mat &src, Mat &dst)
+void HoughImg(Mat &src)
 {
     Mat edge;
     Canny(src, edge, 65.0, 70.0);
-    imshow("canny", edge);
     imwrite("canny.png", edge);
     vector<Vec4i> lines;
     Mat lineImg(src.size(), CV_8UC1, Scalar(0));
@@ -252,5 +266,5 @@ void HoughImg(Mat &src, Mat &dst)
 	     Point(lines[i][2], lines[i][3]), Scalar(255), 1);
     }
     imwrite("hough.png", lineImg);
-    dst = lineImg;
 }
+

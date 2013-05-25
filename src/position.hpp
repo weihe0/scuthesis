@@ -20,7 +20,7 @@ bool filterComponents(Mat &src, Mat &dst, struct Comp &rect);
 void refine(Mat &src, Mat &dst, Mat &mask);
 bool findWheel(Mat &src, Mat &dst);
 void calibrate(Mat &src, Mat &dst);
-void HoughImg(Mat &src, Mat &dst);
+void HoughImg(Mat &src);
 
 #endif
 
